@@ -9,11 +9,15 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); /* خلفية المتجر */
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             margin: 0; padding: 20px; text-align: center;
         }
-        h2 { color: #333; margin-bottom: 20px; }
-        
+        h2 { color: #333; margin-bottom: 20px; font-size: 22px; }
+        .category-title {
+            color: #fff; background: #333; padding: 5px 10px; 
+            border-radius: 8px; margin: 20px auto 10px; 
+            display: inline-block; font-size: 14px;
+        }
         .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr; /* زرين في كل سطر */
@@ -21,61 +25,92 @@
             max-width: 500px;
             margin: 0 auto;
         }
-
         /* تصميم الأزرار الزرقاء الأنيقة */
         .product-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            background-color: #5c7cfa; /* اللون الأزرق */
-            color: white; border: none; padding: 12px;
-            border-radius: 12px; font-size: 14px; font-weight: bold;
+            background-color: #5c7cfa; color: white; border: none; padding: 12px;
+            border-radius: 12px; font-size: 13px; font-weight: bold;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
-        .product-btn:active { transform: scale(0.95); } /* تأثير عند الضغط */
+        .product-btn:active { transform: scale(0.95); }
         
         /* إعدادات صور الشعارات الأصلية */
         .product-btn img {
-            width: 24px; height: 24px; border-radius: 5px; background: white; padding: 2px;
+            width: 20px; height: 20px; border-radius: 5px; background: white; padding: 2px;
         }
     </style>
 </head>
 <body>
 
-    <h2>🛍️ المنتجات المتاحة</h2>
+    <h2>🛍️ تصفح الأقسام والمنتجات</h2>
 
+    <div class="category-title">الذكاء الاصطناعي والتصميم</div>
     <div class="grid-container">
-        <!-- زر Canva -->
-        <button class="product-btn" onclick="buyProduct('canva')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Canva_icon_2021.svg/512px-Canva_icon_2021.svg.png" alt="Canva">
-            Canva Pro
-        </button>
-
-        <!-- زر Gemini -->
-        <button class="product-btn" onclick="buyProduct('gemini')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/512px-Google_Gemini_logo.svg.png" alt="Gemini">
-            Gemini AI
-        </button>
-
-        <!-- زر ChatGPT -->
-        <button class="product-btn" onclick="buyProduct('chatgpt')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/512px-ChatGPT_logo.svg.png" alt="ChatGPT">
-            ChatGPT
-        </button>
-        
-        <!-- زر CapCut -->
-        <button class="product-btn" onclick="buyProduct('capcut')">
-            <img src="https://img.icons8.com/color/512/capcut.png" alt="CapCut">
-            CapCut Pro
-        </button>
+        <button class="product-btn" onclick="buyProduct('cat_Google AI & Gemini')"><img src="gemini.png" alt="Gemini"> Google AI & Gemini</button>
+        <button class="product-btn" onclick="buyProduct('cat_ChatGPT & Codex')"><img src="chatgpt.png" alt="ChatGPT"> ChatGPT & Codex</button>
+        <button class="product-btn" onclick="buyProduct('cat_Claude API')"><img src="claude.png" alt="Claude"> Claude API</button>
+        <button class="product-btn" onclick="buyProduct('cat_Muse AI')"><img src="muse.png" alt="Muse"> Muse AI</button>
+        <button class="product-btn" onclick="buyProduct('cat_Framer AI')"><img src="framer.png" alt="Framer"> Framer AI</button>
+        <button class="product-btn" onclick="buyProduct('cat_Canva')"><img src="canva.png" alt="Canva"> Canva</button>
+        <button class="product-btn" onclick="buyProduct('cat_Adobe')"><img src="adobe.png" alt="Adobe"> Adobe</button>
+        <button class="product-btn" onclick="buyProduct('cat_CapCut')"><img src="capcut.png" alt="CapCut"> CapCut</button>
+        <button class="product-btn" onclick="buyProduct('cat_Figma Pro')"><img src="figma.png" alt="Figma"> Figma Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_Miro Pro')"><img src="miro.png" alt="Miro"> Miro Pro</button>
     </div>
-    <script>
-        // تهيئة تطبيق تيليجرام
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // جعل المتجر يملأ الشاشة عند الفتح
 
-        // دالة إرسال اسم المنتج للبوت عند الضغط على الزر
-        function buyProduct(productId) {
-            tg.sendData(productId);
+    <div class="category-title">المشاهدة والترفيه</div>
+    <div class="grid-container">
+        <button class="product-btn" onclick="buyProduct('cat_YouTube Premium')"><img src="youtube.png" alt="YouTube"> YouTube Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Prime Video')"><img src="primevideo.png" alt="Prime Video"> Prime Video</button>
+        <button class="product-btn" onclick="buyProduct('cat_Apple TV')"><img src="appletv.png" alt="Apple TV"> Apple TV</button>
+        <button class="product-btn" onclick="buyProduct('cat_Crunchyroll Premium')"><img src="crunchyroll.png" alt="Crunchyroll"> Crunchyroll Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Shahid VIP')"><img src="shahid.png" alt="Shahid"> Shahid VIP</button>
+        <button class="product-btn" onclick="buyProduct('cat_Spotify Premium')"><img src="spotify.png" alt="Spotify"> Spotify Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Apple')"><img src="apple.png" alt="Apple"> Apple</button>
+    </div>
+
+    <div class="category-title">الحسابات والتواصل</div>
+    <div class="grid-container">
+        <button class="product-btn" onclick="buyProduct('cat_Gmail')"><img src="gmail.png" alt="Gmail"> Gmail</button>
+        <button class="product-btn" onclick="buyProduct('cat_Email Accounts')"><img src="email.png" alt="Email"> Email Accounts</button>
+        <button class="product-btn" onclick="buyProduct('cat_Instagram')"><img src="instagram.png" alt="Instagram"> Instagram</button>
+        <button class="product-btn" onclick="buyProduct('cat_LinkedIn')"><img src="linkedin.png" alt="LinkedIn"> LinkedIn</button>
+        <button class="product-btn" onclick="buyProduct('cat_Telegram')"><img src="telegram.png" alt="Telegram"> Telegram</button>
+    </div>
+
+    <div class="category-title">شبكات VPN والأمان</div>
+    <div class="grid-container">
+        <button class="product-btn" onclick="buyProduct('cat_ExpressVPN')"><img src="expressvpn.png" alt="ExpressVPN"> ExpressVPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_NordVPN')"><img src="nordvpn.png" alt="NordVPN"> NordVPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_Surfshark VPN')"><img src="surfshark.png" alt="Surfshark"> Surfshark VPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_Proton VPN')"><img src="protonvpn.png" alt="Proton VPN"> Proton VPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_HMA VPN')"><img src="hmavpn.png" alt="HMA VPN"> HMA VPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_Avira Prime')"><img src="avira.png" alt="Avira"> Avira Prime</button>
+    </div>
+
+    <div class="category-title">البرامج والإنتاجية</div>
+    <div class="grid-container">
+        <button class="product-btn" onclick="buyProduct('cat_Windows Key')"><img src="windows.png" alt="Windows"> Windows Key</button>
+        <button class="product-btn" onclick="buyProduct('cat_Microsoft')"><img src="microsoft.png" alt="Microsoft"> Microsoft</button>
+        <button class="product-btn" onclick="buyProduct('cat_JetBrains Pro')"><img src="jetbrains.png" alt="JetBrains"> JetBrains Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_Autodesk')"><img src="autodesk.png" alt="Autodesk"> Autodesk</button>
+        <button class="product-btn" onclick="buyProduct('cat_Notion')"><img src="notion.png" alt="Notion"> Notion</button>
+        <button class="product-btn" onclick="buyProduct('cat_Duolingo Super')"><img src="duolingo.png" alt="Duolingo"> Duolingo Super</button>
+        <button class="product-btn" onclick="buyProduct('cat_edX Premium')"><img src="edx.png" alt="edX"> edX Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Coursera Premium')"><img src="coursera.png" alt="Coursera"> Coursera Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Scribd Premium')"><img src="scribd.png" alt="Scribd"> Scribd Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Steam')"><img src="steam.png" alt="Steam"> Steam</button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); 
+
+        // هذه الدالة ترسل اسم القسم الذي تم الضغط عليه إلى بوت بايثون الخاص بك
+        function buyProduct(categoryName) {
+            tg.sendData(categoryName);
+            tg.close(); // إغلاق المتجر المصغر بعد اختيار القسم والعودة للمحادثة
         }
     </script>
 
