@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber VIP Store</title>
+    <!-- مكتبة تيليجرام الأساسية لربط الصفحة بالبوت -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); /* خلفية المتجر */
+            margin: 0; padding: 20px; text-align: center;
+        }
+        h2 { color: #333; margin-bottom: 20px; }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* زرين في كل سطر */
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* تصميم الأزرار الزرقاء الأنيقة */
+        .product-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background-color: #5c7cfa; /* اللون الأزرق */
+            color: white; border: none; padding: 12px;
+            border-radius: 12px; font-size: 14px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .product-btn:active { transform: scale(0.95); } /* تأثير عند الضغط */
+        
+        /* إعدادات صور الشعارات الأصلية */
+        .product-btn img {
+            width: 24px; height: 24px; border-radius: 5px; background: white; padding: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🛍️ المنتجات المتاحة</h2>
+
+    <div class="grid-container">
+        <!-- زر Canva -->
+        <button class="product-btn" onclick="buyProduct('canva')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Canva_icon_2021.svg" alt="Canva">
+            Canva Pro
+        </button>
+
+        <!-- زر Gemini -->
+        <button class="product-btn" onclick="buyProduct('gemini')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini">
+            Gemini AI
+        </button>
+
+        <!-- زر ChatGPT -->
+        <button class="product-btn" onclick="buyProduct('chatgpt')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT">
+            ChatGPT
+        </button>
+        
+        <!-- زر CapCut -->
+        <button class="product-btn" onclick="buyProduct('capcut')">
+            <img src="https://play-lh.googleusercontent.com/w2XAhB8s3XU2O2RntA05z3Z498B-j-G_L-B67wG7R0gHXZuI0e2dD1z4tP6jJqZ6_w" alt="CapCut">
+            CapCut Pro
+        </button>
+    </div>
+
+    <script>
+        // تهيئة تطبيق تيليجرام
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // جعل المتجر يملأ الشاشة عند الفتح
+
+        // دالة إرسال اسم المنتج للبوت عند الضغط على الزر
+        function buyProduct(productId) {
+            tg.sendData(productId);
+        }
+    </script>
+
+</body>
+</html>
