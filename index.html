@@ -1,127 +1,217 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber VIP Store</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            margin: 0; padding: 15px; text-align: center;
-        }
-        h2 { color: #333; margin-bottom: 15px; font-size: 20px; font-weight: bold; }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            max-width: 500px;
-            margin: 0 auto;
-            padding-bottom: 20px;
-        }
-        .full-btn {
-            grid-column: span 2; 
-        }
-        .product-btn {
-            display: flex; align-items: center; justify-content: flex-start; gap: 8px;
-            background-color: #5c7cfa; color: white; border: none; padding: 10px;
-            border-radius: 12px; font-size: 13px; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        .product-btn:active { transform: scale(0.95); }
-        .product-btn img {
-            width: 22px; height: 22px; border-radius: 5px; background: white; padding: 2px; object-fit: contain; flex-shrink: 0;
-        }
-        .btn-text { margin: 0 auto; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber VIP Store</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 14px;
+    text-align: center; min-height: 100vh; color: #222;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  }
+  h2 { font-size: 18px; margin: 6px 0 14px; }
+  .grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    max-width: 500px; margin: 0 auto; padding-bottom: 30px;
+  }
+  .btn {
+    display: flex; align-items: center; gap: 8px; background: #5c7cfa; color: #fff;
+    border: 0; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700;
+    cursor: pointer; width: 100%; text-align: right;
+    box-shadow: 0 4px 6px rgba(0,0,0,.12); transition: transform .15s;
+  }
+  .btn:active { transform: scale(.96); }
+  .btn img {
+    width: 22px; height: 22px; border-radius: 5px; background: #fff;
+    padding: 2px; object-fit: contain; flex: 0 0 auto;
+  }
+  .btn .t { flex: 1; }
+  .full { grid-column: span 2; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 10px; text-align: right;
+    display: flex; flex-direction: column; gap: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.1);
+  }
+  .card .name { font-size: 12px; font-weight: 700; line-height: 1.35; }
+  .card .price { color: #2f9e44; font-weight: 800; font-size: 13px; }
+  .card .buy {
+    background: #5c7cfa; color: #fff; border: 0; border-radius: 8px;
+    padding: 7px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .card.out { opacity: .55; }
+  .card.out .buy { background: #adb5bd; cursor: default; }
+  .back { background: #495057; margin-bottom: 4px; }
+  .msg {
+    background: rgba(255,255,255,.75); padding: 16px;
+    border-radius: 12px; font-size: 13px; font-weight: 600;
+  }
+  .spin { font-size: 13px; }
+</style>
 </head>
 <body>
 
-    <h2>🛍️ Choose a Category:</h2>
+<h2 id="title">🛍️ اختر قسمًا:</h2>
+<div id="grid" class="grid"></div>
+<div id="list" class="grid" hidden></div>
 
-    <div class="grid-container">
-        <!-- زر جميع المنتجات -->
-        <button class="product-btn full-btn" onclick="buyProduct('cat_All')">
-            <img src="https://img.icons8.com/color/512/shopping-bag.png" alt="All"> 
-            <span class="btn-text">All Available Products (80)</span>
-        </button>
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+try { tg.setHeaderColor('#e0c3fc'); } catch (e) {}
 
-        <!-- الذكاء الاصطناعي والتصميم -->
-        <button class="product-btn" onclick="buyProduct('cat_Google AI & Gemini')"><img src="gemini_logo.png" alt="Gemini"> Gemini AI Pro</button>
-        <button class="product-btn" onclick="buyProduct('cat_Canva')"><img src="Canva_logo_PNG12.png" alt="Canva"> Canva Pro</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_CapCut')"><img src="CapCut-Emblem.png" alt="CapCut"> CapCut Pro</button>
-        <button class="product-btn" onclick="buyProduct('cat_Muse AI')"><img src="Muse_logo_PNG3.png" alt="Muse"> Muse AI</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Claude API')"><img src="Claude-Logo-PNG4.png" alt="Claude"> Claude API</button>
-        <button class="product-btn" onclick="buyProduct('cat_ChatGPT & Codex')"><img src="ChatGPT_Logo_PNG1.png" alt="ChatGPT"> ChatGPT</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Adobe')"><img src="Adobe_logo_PNG14.png" alt="Adobe"> Adobe</button>
-        <button class="product-btn" onclick="buyProduct('cat_Figma Pro')"><img src="Figma-Logo-PNG_001.png" alt="Figma"> Figma Pro</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Miro Pro')"><img src="miro_logo.png" alt="Miro"> Miro Pro</button>
-        <button class="product-btn" onclick="buyProduct('cat_Framer AI')"><img src="framer_logo.png" alt="Framer"> Framer AI</button>
+/* ====== غيّر هذا السطر فقط إلى دومين Railway الخاص بك ====== */
+const API_URL = 'https://REPLACE-ME.up.railway.app/api/products';
 
-        <!-- برامج الإنتاجية والتعليم -->
-        <button class="product-btn" onclick="buyProduct('cat_JetBrains Pro')"><img src="jetbrains_logo" alt="JetBrains"> JetBrains Pro</button>
-        <button class="product-btn" onclick="buyProduct('cat_Notion')"><img src="Notion-Logo.png" alt="Notion"> Notion</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Microsoft')"><img src="microsoft_PNG4.png" alt="Microsoft"> Microsoft 365</button>
-        <button class="product-btn" onclick="buyProduct('cat_Windows Key')"><img src="Windows_logo_PNG5.png" alt="Windows"> Windows Key</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Autodesk')"><img src="Autodesk_logo_PNG2.png" alt="Autodesk"> Autodesk</button>
-        <button class="product-btn" onclick="buyProduct('cat_Duolingo Super')"><img src="Duolingo_logo_PNG1.png" alt="Duolingo"> Duolingo Super</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Coursera Premium')"><img src="Coursera_Logo_PNG4.png" alt="Coursera"> Coursera Premium</button>
-        <button class="product-btn" onclick="buyProduct('cat_edX Premium')"><img src="edX-Logo.png" alt="edX"> edX Premium</button>
-        
-        <!-- الترفيه والمشاهدة -->
-        <button class="product-btn" onclick="buyProduct('cat_YouTube Premium')"><img src="Youtube_logo_PNG3.png" alt="YouTube"> YouTube Premium</button>
-        <button class="product-btn" onclick="buyProduct('cat_Prime Video')"><img src="Amazon_Prime_Video_Logo_PNG3.png" alt="Prime Video"> Prime Video</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Apple TV')"><img src="Apple-Music-Logo-PNG_003.png" alt="Apple TV"> Apple TV</button>
-        <button class="product-btn" onclick="buyProduct('cat_Shahid VIP')"><img src="Shahid App-01.png" alt="Shahid"> Shahid VIP</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Crunchyroll Premium')"><img src="Crunchyroll_logo_PNG9.png" alt="Crunchyroll"> Crunchyroll</button>
-        <button class="product-btn" onclick="buyProduct('cat_Spotify Premium')"><img src="spotify_logo_PNG5.png" alt="Spotify"> Spotify Premium</button>
-        
-        <!-- الحسابات والتواصل -->
-        <button class="product-btn" onclick="buyProduct('cat_Email Accounts')"><img src="Outlook_Logo_PNG6.png" alt="Outlook"> Outlook</button>
-        <button class="product-btn" onclick="buyProduct('cat_Gmail')"><img src="Gmail-Logo-PNG1.png" alt="Gmail"> Gmail</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Instagram')"><img src="InstagramPNG.png" alt="Instagram"> Facebook & Insta</button>
-        <button class="product-btn" onclick="buyProduct('cat_LinkedIn')"><img src="Linkedin_logo_PNG3.png" alt="LinkedIn"> LinkedIn</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Telegram')"><img src="Telegram_logo_PNG2.png" alt="Telegram"> Telegram</button>
-        <button class="product-btn" onclick="buyProduct('cat_Steam')"><img src="Steam_logo_PNG2.png" alt="Steam"> Steam</button>
+const BOT = 'CyberVIPStore_bot';
 
-        <!-- شبكات الحماية VPN -->
-        <button class="product-btn" onclick="buyProduct('cat_ExpressVPN')"><img src="ExpressVPN-logo.png" alt="ExpressVPN"> ExpressVPN</button>
-        <button class="product-btn" onclick="buyProduct('cat_NordVPN')"><img src="NordVPN-Logo-PNG3.png" alt="NordVPN"> NordVPN</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_Surfshark VPN')"><img src="Surfshark Logo - Vertical Colored - 833x512 - z... " alt="Surfshark"> Surfshark VPN</button>
-        <button class="product-btn" onclick="buyProduct('cat_Proton VPN')"><img src="proton-vpn.png" alt="Proton VPN"> Proton VPN</button>
-        
-        <button class="product-btn" onclick="buyProduct('cat_HMA VPN')"><img src="hma-vpn-logo.png" alt="HMA VPN"> HMA VPN</button>
-        <button class="product-btn" onclick="buyProduct('cat_Avira Prime')"><img src="avira_logo.png" alt="Avira"> Avira Prime</button>
-        
-        <button class="product-btn full-btn" onclick="buyProduct('cat_Scribd Premium')">
-            <img src="scribd_logo.png" alt="Scribd"> 
-            <span class="btn-text">Scribd Premium</span>
-        </button>
+const CATS = [
+  { cat: 'All',                 title: 'كل المنتجات المتاحة', img: 'https://img.icons8.com/color/512/shopping-bag.png', full: true },
+  { cat: 'Google AI & Gemini',  title: 'Gemini AI Pro',        img: 'gemini_logo.png' },
+  { cat: 'Canva',               title: 'Canva Pro',            img: 'Canva_logo_PNG12.png' },
+  { cat: 'CapCut',              title: 'CapCut Pro',           img: 'CapCut-Emblem.png' },
+  { cat: 'Muse AI',             title: 'Muse AI',              img: 'Muse_logo_PNG3.png' },
+  { cat: 'Claude API',          title: 'Claude API',           img: 'Claude-Logo-PNG4.png' },
+  { cat: 'ChatGPT & Codex',     title: 'ChatGPT',              img: 'ChatGPT_Logo_PNG1.png' },
+  { cat: 'Adobe',               title: 'Adobe',                img: 'Adobe_logo_PNG14.png' },
+  { cat: 'Figma Pro',           title: 'Figma Pro',            img: 'Figma-Logo-PNG_001.png' },
+  { cat: 'Miro Pro',            title: 'Miro Pro',             img: 'miro_logo.png' },
+  { cat: 'Framer AI',           title: 'Framer AI',            img: 'framer_logo.png' },
+  { cat: 'JetBrains Pro',       title: 'JetBrains Pro',        img: 'jetbrains_logo.png' },
+  { cat: 'Notion',              title: 'Notion',               img: 'Notion-Logo.png' },
+  { cat: 'Microsoft',           title: 'Microsoft 365',        img: 'microsoft_PNG4.png' },
+  { cat: 'Windows Key',         title: 'Windows Key',          img: 'Windows_logo_PNG5.png' },
+  { cat: 'Autodesk',            title: 'Autodesk',             img: 'Autodesk_logo_PNG2.png' },
+  { cat: 'Duolingo Super',      title: 'Duolingo Super',       img: 'Duolingo_logo_PNG1.png' },
+  { cat: 'Coursera Premium',    title: 'Coursera Premium',     img: 'Coursera_Logo_PNG4.png' },
+  { cat: 'edX Premium',         title: 'edX Premium',          img: 'edX-Logo.png' },
+  { cat: 'YouTube Premium',     title: 'YouTube Premium',      img: 'Youtube_logo_PNG3.png' },
+  { cat: 'Prime Video',         title: 'Prime Video',          img: 'Amazon_Prime_Video_Logo_PNG3.png' },
+  { cat: 'Apple TV',            title: 'Apple TV',             img: 'Apple-Music-Logo-PNG_003.png' },
+  { cat: 'Shahid VIP',          title: 'Shahid VIP',           img: 'Shahid App-01.png' },
+  { cat: 'Crunchyroll Premium', title: 'Crunchyroll',          img: 'Crunchyroll_logo_PNG9.png' },
+  { cat: 'Spotify Premium',     title: 'Spotify Premium',      img: 'spotify_logo_PNG5.png' },
+  { cat: 'Email Accounts',      title: 'Outlook',              img: 'Outlook_Logo_PNG6.png' },
+  { cat: 'Gmail',               title: 'Gmail',                img: 'Gmail-Logo-PNG1.png' },
+  { cat: 'Instagram',           title: 'Facebook & Insta',     img: 'InstagramPNG.png' },
+  { cat: 'LinkedIn',            title: 'LinkedIn',             img: 'Linkedin_logo_PNG3.png' },
+  { cat: 'Telegram',            title: 'Telegram',             img: 'Telegram_logo_PNG2.png' },
+  { cat: 'Steam',               title: 'Steam',                img: 'Steam_logo_PNG2.png' },
+  { cat: 'ExpressVPN',          title: 'ExpressVPN',           img: 'ExpressVPN-logo.png' },
+  { cat: 'NordVPN',             title: 'NordVPN',              img: 'NordVPN-Logo-PNG3.png' },
+  { cat: 'Surfshark VPN',       title: 'Surfshark VPN',        img: 'surfshark_logo.png' },
+  { cat: 'Proton VPN',          title: 'Proton VPN',           img: 'proton-vpn.png' },
+  { cat: 'HMA VPN',             title: 'HMA VPN',              img: 'hma-vpn-logo.png' },
+  { cat: 'Avira Prime',         title: 'Avira Prime',          img: 'avira_logo.png' },
+  { cat: 'Scribd Premium',      title: 'Scribd Premium',       img: 'scribd_logo.png', full: true },
+];
 
-    </div>
+const elGrid  = document.getElementById('grid');
+const elList  = document.getElementById('list');
+const elTitle = document.getElementById('title');
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand(); 
+let ALL = null;        // null = لم تُحمّل بعد
+let currentCat = null;
 
-        function buyProduct(categoryName) {
-            tg.sendData(categoryName);
-            tg.close(); 
-        }
-    </script>
+/* ---------- شاشة الأقسام ---------- */
+function renderCategories() {
+  currentCat = null;
+  elTitle.textContent = '🛍️ اختر قسمًا:';
+  elGrid.hidden = false;
+  elList.hidden = true;
+  elGrid.innerHTML = '';
+
+  CATS.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'btn' + (c.full ? ' full' : '');
+    b.innerHTML =
+      `<img src="${c.img}" alt="" onerror="this.style.display='none'">` +
+      `<span class="t">${c.title}</span>`;
+    b.addEventListener('click', () => showProducts(c.cat));
+    elGrid.appendChild(b);
+  });
+
+  hideBack();
+}
+
+/* ---------- شاشة المنتجات ---------- */
+function showProducts(cat) {
+  currentCat = cat;
+  const found = CATS.find(c => c.cat === cat);
+  elTitle.textContent = cat === 'All' ? '📦 كل المنتجات' : '📦 ' + (found ? found.title : cat);
+  elGrid.hidden = true;
+  elList.hidden = false;
+  elList.innerHTML = '';
+
+  const back = document.createElement('button');
+  back.className = 'btn back full';
+  back.innerHTML = '<span class="t">↩ رجوع إلى الأقسام</span>';
+  back.addEventListener('click', renderCategories);
+  elList.appendChild(back);
+
+  if (ALL === null) {
+    elList.insertAdjacentHTML('beforeend',
+      '<div class="msg full spin">⏳ جاري تحميل المنتجات…</div>');
+    return;
+  }
+
+  const items = ALL.filter(p => cat === 'All' || p.category === cat);
+
+  if (items.length === 0) {
+    elList.insertAdjacentHTML('beforeend',
+      '<div class="msg full">❌ لا توجد منتجات في هذا القسم حاليًا.</div>');
+    return;
+  }
+
+  items.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card' + (p.in_stock ? '' : ' out');
+    card.innerHTML = `
+      <div class="name">${p.emoji || '📦'} ${p.name}</div>
+      <div class="price">${p.in_stock ? '$' + p.price : 'نفد'}</div>
+      <button class="buy"${p.in_stock ? '' : ' disabled'}>
+        ${p.in_stock ? '🛒 اطلب الآن' : 'غير متوفر'}
+      </button>`;
+    if (p.in_stock) {
+      card.querySelector('.buy').addEventListener('click', () => {
+        tg.openTelegramLink(`https://t.me/${BOT}?start=buy_${p.id}`);
+      });
+    }
+    elList.appendChild(card);
+  });
+
+  showBack();
+}
+
+function showBack() { try { tg.BackButton.show(); } catch (e) {} }
+function hideBack() { try { tg.BackButton.hide(); } catch (e) {} }
+
+try {
+  tg.BackButton.onClick(() => {
+    if (currentCat) renderCategories();
+  });
+} catch (e) {}
+
+/* ---------- تحميل البيانات ---------- */
+async function load() {
+  try {
+    const res = await fetch(API_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    ALL = Array.isArray(json.products) ? json.products : [];
+  } catch (e) {
+    ALL = [];
+    elTitle.textContent = '⚠️ تعذّر تحميل المنتجات';
+  }
+
+  if (currentCat) showProducts(currentCat); else renderCategories();
+}
+
+renderCategories();
+load();
+</script>
 </body>
 </html>
