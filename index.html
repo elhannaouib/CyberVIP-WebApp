@@ -1,353 +1,85 @@
-import asyncio
-import logging
-import aiohttp
-from aiogram import Bot, Dispatcher, F, types
-from aiogram.filters import Command, CommandStart
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, WebAppInfo
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber VIP Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            margin: 0; padding: 15px; text-align: center;
+        }
+        h2 { color: #333; margin-bottom: 15px; font-size: 20px; }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* زرين في كل صف تماماً مثل الصورة */
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .full-btn {
+            grid-column: span 2; /* زر عريض يملأ الصفر العلوي مثل زر All Products */
+        }
+        .product-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background-color: #5c7cfa; color: white; border: none; padding: 12px;
+            border-radius: 12px; font-size: 13px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .product-btn:active { transform: scale(0.95); }
+        .product-btn img {
+            width: 22px; height: 22px; border-radius: 5px; background: white; padding: 2px; object-fit: contain;
+        }
+    </style>
+</head>
+<body>
 
-# ============= الإعدادات =============
-TOKEN = "8956304502:AAG5OhN7bYGHcIfT5caGxbiiIPiasNkPV9g"
-API_KEY = "mk_85866d15_4a12f429daff7028d09e7b0cd1c78d67"
-API_BASE_URL = "https://api.alaricstore.com/api/v1"
+    <h2>🛍️ Choose a Category:</h2>
 
-BANK_1_NAME = "Attijari Wafabank"
-ACCOUNT_1_NAME = "حساب شخصي"
-ACCOUNT_1_RIB = "007330000463500031156848"
-ACCOUNT_1_SWIFT = "BCMAMAMC"
+    <div class="grid-container">
+        <!-- زر جميع المنتجات العريض في الأعلى -->
+        <button class="product-btn full-btn" onclick="buyProduct('cat_All')">
+            <img src="https://img.icons8.com/color/512/shopping-bag.png" alt="All"> 
+            All Available Products (80)
+        </button>
 
-BANK_2_NAME = "CIH Bank"
-ACCOUNT_2_NAME = "حساب تجاري"
-ACCOUNT_2_RIB = "230330654524922100580038"
-ACCOUNT_2_SWIFT = "CIHMMAMC"
-
-BINANCE_USDT_NETWORK = "TRC20"
-BINANCE_WALLET_ADDRESS = "ضع_عنوان_محفظة_الـ_USDT_هنا"
-BINANCE_PAY_ID = "307299882"
-WHATSAPP_NUMBER = "+21272138837"
-
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
-dp = Dispatcher()
-
-# ================= دالة الاتصال بالسيرفر =================
-async def fetch_api(endpoint="products"):
-    url = f"{API_BASE_URL}/{endpoint}"
-    headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, timeout=15) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return data if isinstance(data, list) else (data.get("products") or data.get("data") or [])
-        return []
-    except Exception as e:
-        logging.error(f"API Error: {e}")
-        return []
-
-# ================= الترتيب والتصنيفات =================
-def get_custom_product_config(raw_name: str):
-    n = raw_name.lower().strip()
-    if "admin panel" in n and "canva" in n and "500" in n: return None
-    elif "canva pro invitation" in n: return {"price": 5.0, "category": "Canva", "emoji": "🖌️"}
-    elif "canva education invitation" in n: return {"price": 2.0, "category": "Canva", "emoji": "🖌️"}
-    elif "canva" in n: return {"price": 4.0, "category": "Canva", "emoji": "🖌️"}
-    elif "adobe express" in n and "12" in n: return {"price": 5.0, "category": "Adobe", "emoji": "🔴"}
-    elif "google ai plus" in n and "3" in n: return {"price": 5.0, "category": "Google AI & Gemini", "emoji": "✨"}
-    elif "gemini plus" in n and "12" in n: return {"price": 10.0, "category": "Google AI & Gemini", "emoji": "✨"}
-    elif "google ai pro" in n and "18" in n: return {"price": 25.0, "category": "Google AI & Gemini", "emoji": "✨"}
-    elif "capcut pro" in n and "1,600" in n: return {"price": 5.0, "category": "CapCut", "emoji": "✂️"}
-    elif "capcut pro" in n: return {"price": 3.5, "category": "CapCut", "emoji": "✂️"}
-    elif "muse ai" in n and "30" in n: return {"price": 20.0, "category": "Muse AI", "emoji": "🧠"}
-    elif "muse ai" in n: return {"price": 6.0, "category": "Muse AI", "emoji": "🧠"}
-    elif "claude api" in n and "10m" in n: return {"price": 3.0, "category": "Claude API", "emoji": "🤖"}
-    elif "claude api" in n and "100m" in n: return {"price": 7.0, "category": "Claude API", "emoji": "🤖"}
-    elif "claude api" in n and "50m" in n: return {"price": 6.0, "category": "Claude API", "emoji": "🤖"}
-    elif "claude api" in n and "500m" in n: return {"price": 30.0, "category": "Claude API", "emoji": "🤖"}
-    elif "codex api" in n and "10m" in n: return {"price": 3.0, "category": "ChatGPT & Codex", "emoji": "💬"}
-    elif "codex api" in n and "50m" in n: return {"price": 5.0, "category": "ChatGPT & Codex", "emoji": "💬"}
-    elif "codex api" in n and "100m" in n: return {"price": 9.0, "category": "ChatGPT & Codex", "emoji": "💬"}
-    elif "chatgpt plus" in n: return {"price": 30.0, "category": "ChatGPT & Codex", "emoji": "💬"}
-    elif "figma pro education" in n: return {"price": 8.0, "category": "Figma Pro", "emoji": "🎨"}
-    elif "miro lifetime panel" in n: return {"price": 15.0, "category": "Miro Pro", "emoji": "📊"}
-    elif "miro panel" in n: return {"price": 14.0, "category": "Miro Pro", "emoji": "📊"}
-    elif "jetbrains student" in n: return {"price": 13.0, "category": "JetBrains Pro", "emoji": "💻"}
-    elif "notion plus" in n: return {"price": 10.0, "category": "Notion", "emoji": "📝"}
-    elif "notion business" in n: return {"price": 8.0, "category": "Notion", "emoji": "📝"}
-    elif "apple tv" in n: return {"price": 10.0, "category": "Apple TV", "emoji": "🍏"}
-    elif "amazon prime video" in n: return {"price": 3.0, "category": "Prime Video", "emoji": "🍿"}
-    elif "prime video" in n: return {"price": 10.0, "category": "Prime Video", "emoji": "🍿"}
-    elif "microsoft office 365" in n: return {"price": 7.0, "category": "Microsoft", "emoji": "🪟"}
-    elif "expressvpn" in n: return {"price": 5.0, "category": "ExpressVPN", "emoji": "🛡️"}
-    elif "youtube premium" in n and "3" in n: return {"price": 7.0, "category": "YouTube Premium", "emoji": "▶️"}
-    elif "youtube premium" in n: return {"price": 4.0, "category": "YouTube Premium", "emoji": "▶️"}
-    elif "nordvpn basic" in n: return {"price": 5.0, "category": "NordVPN", "emoji": "🛡️"}
-    elif "nordvpn coupon" in n: return {"price": 7.0, "category": "NordVPN", "emoji": "🛡️"}
-    elif "steam account" in n: return {"price": 4.0, "category": "Steam", "emoji": "🎮"}
-    elif "proton vpn" in n: return {"price": 5.0, "category": "Proton VPN", "emoji": "🛡️"}
-    elif "spotify premium" in n: return {"price": 4.0, "category": "Spotify Premium", "emoji": "🎧"}
-    elif "apple music" in n: return {"price": 7.0, "category": "Apple", "emoji": "🎵"}
-    elif "gmail account" in n: return {"price": 3.0, "category": "Gmail", "emoji": "📧"}
-    elif "instagram account" in n: return {"price": 3.0, "category": "Instagram", "emoji": "📸"}
-    elif "linkedin career" in n: return {"price": 6.0, "category": "LinkedIn", "emoji": "💼"}
-    elif "windows 11 pro" in n: return {"price": 5.0, "category": "Windows Key", "emoji": "🪟"}
-    elif "hma vpn" in n: return {"price": 6.0, "category": "HMA VPN", "emoji": "🛡️"}
-    elif "telegram account" in n: return {"price": 4.0, "category": "Telegram", "emoji": "📱"}
-    elif "scribd premium" in n: return {"price": 3.0, "category": "Scribd Premium", "emoji": "📖"}
-    elif "duolingo super" in n: return {"price": 15.0, "category": "Duolingo Super", "emoji": "🦉"}
-    elif "edx premium" in n: return {"price": 20.0, "category": "edX Premium", "emoji": "🎓"}
-    elif "crunchyroll premium" in n: return {"price": 3.0, "category": "Crunchyroll Premium", "emoji": "🍥"}
-    elif "framer ai" in n: return {"price": 25.0, "category": "Framer AI", "emoji": "🎨"}
-    elif "avira prime" in n: return {"price": 7.0, "category": "Avira Prime", "emoji": "🛡️"}
-    elif "surfshark vpn" in n and "coupon" in n: return {"price": 6.0, "category": "Surfshark VPN", "emoji": "🦈"}
-    elif "surfshark vpn" in n: return {"price": 5.0, "category": "Surfshark VPN", "emoji": "🦈"}
-    elif "autodesk all apps" in n: return {"price": 7.0, "category": "Autodesk", "emoji": "📐"}
-    elif "shahid vip" in n: return {"price": 7.0, "category": "Shahid VIP", "emoji": "🎬"}
-    elif "coursera premium" in n: return {"price": 20.0, "category": "Coursera Premium", "emoji": "🎓"}
-    elif "outlook" in n or "hotmail" in n: return {"price": 1.5, "category": "Email Accounts", "emoji": "📧"}
-    return None
-
-CATEGORY_ORDER = [
-    "Google AI & Gemini", "ChatGPT & Codex", "Claude API", "Muse AI",
-    "Framer AI", "Canva", "Adobe", "CapCut", "Figma Pro", "Miro Pro",
-    "YouTube Premium", "Prime Video", "Apple TV", "Crunchyroll Premium",
-    "Shahid VIP", "Spotify Premium", "Apple", "Gmail", "Email Accounts",
-    "Instagram", "LinkedIn", "Telegram", "ExpressVPN", "NordVPN",
-    "Surfshark VPN", "Proton VPN", "HMA VPN", "Avira Prime",
-    "Windows Key", "Microsoft", "JetBrains Pro", "Autodesk",
-    "Notion", "Duolingo Super", "edX Premium", "Coursera Premium",
-    "Scribd Premium", "Steam"
-]
-
-# ================= القائمة الرئيسية =================
-def get_main_keyboard():
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text="🌐 فتح المتجر الاحترافي", 
-        web_app=WebAppInfo(url="https://elhannaouib.github.io/CyberVIP-WebApp/")
-    )
-    builder.button(text="🛍️ تصفح الأقسام", callback_data="list_categories")
-    builder.button(text="⚙️ الإعدادات", callback_data="settings_menu")
-    builder.button(text="💳 فحص الرصيد", callback_data="check_balance")
-    builder.button(text="🛠️ الدعم الفني", callback_data="support_menu")
-    builder.adjust(1, 2, 2)
-    return builder.as_markup()
-
-@dp.message(CommandStart())
-async def cmd_start(message: Message):
-    await message.answer(
-        "👋 **مرحباً بك في متجر Cyber VIP** 🚀\n\nاختر من الأقسام أدناه لتصفح المنتجات أو إدارة حسابك:",
-        reply_markup=get_main_keyboard()
-    )
-
-@dp.message(Command("products"))
-async def cmd_products(message: Message):
-    await list_categories_handler(message)
-
-# ================= تصفح الأقسام (القائمة الكلاسيكية العادية) =================
-@dp.callback_query(F.data == "list_categories")
-async def list_categories_callback(callback: CallbackQuery):
-    await list_categories_handler(callback)
-    await callback.answer()
-
-async def list_categories_handler(event):
-    products_list = await fetch_api("products")
-    
-    if products_list:
-        categories_dict = {}
-        for p in products_list:
-            if not p.get("available", True):
-                continue
-            raw_name = p.get("name", "")
-            config = get_custom_product_config(raw_name)
-            if config:
-                cat_name = config["category"]
-                if cat_name not in categories_dict:
-                    categories_dict[cat_name] = {"emoji": config["emoji"], "count": 0}
-                categories_dict[cat_name]["count"] += 1
-
-        ordered_categories = []
-        for cat in CATEGORY_ORDER:
-            if cat in categories_dict:
-                ordered_categories.append((cat, categories_dict[cat]))
-        for cat, info in categories_dict.items():
-            if cat not in CATEGORY_ORDER:
-                ordered_categories.append((cat, info))
-
-        builder = InlineKeyboardBuilder()
-        for cat_name, info in ordered_categories:
-            builder.button(
-                text=f"{info['emoji']} {cat_name} ({info['count']})", 
-                callback_data=f"cat_{cat_name[:20]}"
-            )
+        <!-- باقي الأقسام بنظام زرين في كل صف مطابقة للصورة -->
+        <button class="product-btn" onclick="buyProduct('cat_Google AI & Gemini')"><img src="gemini_logo.png" alt="Gemini"> Gemini AI Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_Canva')"><img src="Canva_logo_PNG12.png" alt="Canva"> Canva Pro</button>
         
-        builder.adjust(2) 
-        builder.row(InlineKeyboardButton(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home"))
+        <button class="product-btn" onclick="buyProduct('cat_CapCut')"><img src="CapCut-Emblem.png" alt="CapCut"> CapCut Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_Muse AI')"><img src="Muse_logo_PNG3.png" alt="Muse"> Muse AI</button>
         
-        text = "📂 **اختر القسم الذي تريده:**"
+        <button class="product-btn" onclick="buyProduct('cat_Claude API')"><img src="Claude-Logo-PNG4.png" alt="Claude"> Claude API</button>
+        <button class="product-btn" onclick="buyProduct('cat_ChatGPT & Codex')"><img src="ChatGPT_Logo_PNG1.png" alt="ChatGPT"> ChatGPT</button>
         
-        if isinstance(event, Message):
-            await event.answer(text, reply_markup=builder.as_markup())
-        elif isinstance(event, CallbackQuery):
-            await event.message.edit_text(text, reply_markup=builder.as_markup())
-    else:
-        text = "❌ عذراً، لا توجد منتجات متاحة حالياً."
-        if isinstance(event, Message):
-            await event.answer(text)
-        elif isinstance(event, CallbackQuery):
-            await event.message.edit_text(text)
-
-# ================= عرض منتجات القسم المختار (عبر الأزرار العادية) =================
-@dp.callback_query(F.data.startswith("cat_"))
-async def show_category_products(callback: CallbackQuery):
-    cat_key = callback.data.split("cat_")[1]
-    products_list = await fetch_api("products")
+        <button class="product-btn" onclick="buyProduct('cat_Adobe')"><img src="Adobe_logo_PNG14.png" alt="Adobe"> Adobe</button>
+        <button class="product-btn" onclick="buyProduct('cat_Figma Pro')"><img src="Figma-Logo-PNG_001.png" alt="Figma"> Figma Pro</button>
         
-    builder = InlineKeyboardBuilder()
-    found_products = False
-    
-    for prod in products_list:
-        if not prod.get("available", True):
-            continue
-        raw_name = prod.get("name", "")
-        config = get_custom_product_config(raw_name)
-        if config and config["category"][:20] == cat_key:
-            found_products = True
-            p_id = prod.get("id", "")
-            final_price = config["price"]
-            emoji = config["emoji"]
-            builder.button(text=f"{emoji} {raw_name} — ${final_price}", callback_data=f"buy_{p_id}")
-            
-    builder.adjust(1) 
-    builder.row(InlineKeyboardButton(text="🔙 العودة للأقسام", callback_data="list_categories"))
-    
-    if found_products:
-        await callback.message.edit_text(f"📦 **المنتجات المتاحة في قسم [{cat_key}]:**", reply_markup=builder.as_markup())
-    else:
-        await callback.message.edit_text("❌ لا توجد منتجات في هذا القسم.", reply_markup=builder.as_markup())
-    await callback.answer()
-
-# ================= استقبال بيانات المتجر المصغر Web App =================
-@dp.message(F.web_app_data)
-async def handle_web_app_data(message: Message):
-    data = message.web_app_data.data
-    products_list = await fetch_api("products")
-    builder = InlineKeyboardBuilder()
-    found_products = False
-    
-    for prod in products_list:
-        if not prod.get("available", True):
-            continue
-        raw_name = prod.get("name", "")
-        config = get_custom_product_config(raw_name)
-        if config:
-            if data == "cat_All" or (data.startswith("cat_") and config["category"][:20] == data.replace("cat_", "")):
-                found_products = True
-                p_id = prod.get("id", "")
-                final_price = config["price"]
-                emoji = config["emoji"]
-                builder.button(text=f"{emoji} {raw_name} — ${final_price}", callback_data=f"buy_{p_id}")
-                
-    builder.adjust(1)
-    builder.row(InlineKeyboardButton(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home"))
-    
-    if found_products:
-        await message.answer(f"📦 **المنتجات المتاحة:**", reply_markup=builder.as_markup())
-    else:
-        await message.answer("❌ لا توجد منتجات متاحة حالياً في هذا القسم.", reply_markup=builder.as_markup())
-
-# ================= شراء المنتجات =================
-@dp.callback_query(F.data.startswith("buy_"))
-async def process_buy_click(callback: CallbackQuery):
-    product_id = callback.data.split("buy_")[1]
-    products_list = await fetch_api("products")
-    selected_prod = next((p for p in products_list if str(p.get("id")) == str(product_id)), None)
-    
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home"))
-    
-    if selected_prod and get_custom_product_config(selected_prod.get("name", "")):
-        p_name = selected_prod.get("name")
-        config = get_custom_product_config(p_name)
-        final_price = config["price"]
-        emoji = config["emoji"]
+        <button class="product-btn" onclick="buyProduct('cat_Miro Pro')"><img src="miro_logo.png" alt="Miro"> Miro Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_JetBrains Pro')"><img src="jetbrains_logo" alt="JetBrains"> JetBrains Pro</button>
         
-        text = (
-            f"🎯 **تفاصيل الطلب:**\n\n"
-            f"{emoji} **المنتج:** `{p_name}`\n"
-            f"💵 **السعر الإجمالي:** `${final_price}`\n"
-            f"ــــــــــــــــــــــــــــــــــــــــ\n\n"
-            f"🏦 **طرق الدفع المتاحة:**\n\n"
-            f"🏛 **1️⃣ التحويل عبر {BANK_1_NAME}:**\n"
-            f"🔹 النوع: `{ACCOUNT_1_NAME}`\n"
-            f"🔹 RIB: `{ACCOUNT_1_RIB}`\n"
-            f"🔹 SWIFT: `{ACCOUNT_1_SWIFT}`\n\n"
-            f"🏛 **2️⃣ التحويل عبر {BANK_2_NAME}:**\n"
-            f"🔹 النوع: `{ACCOUNT_2_NAME}`\n"
-            f"🔹 RIB: `{ACCOUNT_2_RIB}`\n"
-            f"🔹 SWIFT: `{ACCOUNT_2_SWIFT}`\n\n"
-            f"🟡 **3️⃣ بايننس (Binance USDT / Pay):**\n"
-            f"🔹 شبكة USDT ({BINANCE_USDT_NETWORK}): `{BINANCE_WALLET_ADDRESS}`\n"
-            f"🔹 Binance Pay ID / UID: `{BINANCE_PAY_ID}`\n\n"
-            f"📸 *بعد إتمام عملية الدفع بأي طريقة، أرسل صورة الوصل (Screenshot) هنا في البوت لاستلام طلبك فوراً!*"
-        )
-        await callback.message.edit_text(text, reply_markup=builder.as_markup())
-    else:
-        await callback.message.edit_text("❌ عذراً، هذا المنتج غير متوفر حالياً.", reply_markup=builder.as_markup())
-    
-    await callback.answer()
+        <button class="product-btn" onclick="buyProduct('cat_Notion')"><img src="Notion-Logo.png" alt="Notion"> Notion</button>
+        <button class="product-btn" onclick="buyProduct('cat_Apple TV')"><img src="Apple-Music-Logo-PNG_003.png" alt="Apple TV"> Apple TV</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Prime Video')"><img src="Amazon_Prime_Video_Logo_PNG3.png" alt="Prime"> Prime Video</button>
+        <button class="product-btn" onclick="buyProduct('cat_Microsoft')"><img src="microsoft_PNG4.png" alt="Microsoft"> Microsoft</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Instagram')"><img src="InstagramPNG.png" alt="Insta"> Facebook</button>
+        <button class="product-btn" onclick="buyProduct('cat_Email Accounts')"><img src="Outlook_Logo_PNG6.png" alt="Outlook"> Outlook & Hotmail</button>
+    </div>
 
-# ================= القوائم والدعم =================
-@dp.callback_query(F.data == "settings_menu")
-async def settings_menu(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home"))
-    settings_text = f"⚙️ **الإعدادات العامة**\n\nمعلومات الحساب:\n\n**رقم المعرف (UID):** `{user_id}` 📋"
-    await callback.message.edit_text(settings_text, reply_markup=builder.as_markup())
-    await callback.answer()
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); 
 
-@dp.message(Command("support"))
-async def cmd_support(message: Message):
-    whatsapp_url = f"https://wa.me/{WHATSAPP_NUMBER.replace('+', '')}"
-    builder = InlineKeyboardBuilder()
-    builder.button(text="💬 تواصل عبر واتساب", url=whatsapp_url)
-    builder.button(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home")
-    builder.adjust(1)
-    support_text = "🛠️ **الدعم الفني وخدمة العملاء**\n\nإذا واجهتك أي مشكلة أو كان لديك استفسار، تواصل معنا مباشرة عبر واتساب."
-    await message.answer(support_text, reply_markup=builder.as_markup())
-
-@dp.callback_query(F.data == "support_menu")
-async def support_menu_callback(callback: CallbackQuery):
-    whatsapp_url = f"https://wa.me/{WHATSAPP_NUMBER.replace('+', '')}"
-    builder = InlineKeyboardBuilder()
-    builder.button(text="💬 تواصل عبر واتساب", url=whatsapp_url)
-    builder.button(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home")
-    builder.adjust(1)
-    support_text = "🛠️ **الدعم الفني وخدمة العملاء**\n\nإذا واجهتك أي مشكلة أو كان لديك استفسار، تواصل معنا مباشرة عبر واتساب."
-    await callback.message.edit_text(support_text, reply_markup=builder.as_markup())
-    await callback.answer()
-
-@dp.callback_query(F.data == "check_balance")
-async def check_balance_menu(callback: CallbackQuery):
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🔙 العودة للقائمة الرئيسية", callback_data="back_home"))
-    await callback.message.edit_text("💳 **رصيدك الحالي:** $0.00\n\n*(يمكنك الشحن المباشر عند إرسال الوصل بعد الطلب)*", reply_markup=builder.as_markup())
-    await callback.answer()
-
-@dp.callback_query(F.data == "back_home")
-async def back_home_handler(callback: CallbackQuery):
-    await callback.message.edit_text(
-        "👋 **مرحباً بك في متجر Cyber VIP** 🚀\n\nاختر من الأقسام أدناه لتصفح المنتجات أو إدارة حسابك:",
-        reply_markup=get_main_keyboard()
-    )
-    await callback.answer()
-
-# ================= التشغيل =================
-async def main():
-    logging.basicConfig(level=logging.INFO)
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        function buyProduct(categoryName) {
+            tg.sendData(categoryName);
+            tg.close(); 
+        }
+    </script>
+</body>
+</html>
