@@ -11,28 +11,30 @@
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             margin: 0; padding: 15px; text-align: center;
         }
-        h2 { color: #333; margin-bottom: 15px; font-size: 20px; }
+        h2 { color: #333; margin-bottom: 15px; font-size: 20px; font-weight: bold; }
         .grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* زرين في كل صف تماماً مثل الصورة */
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             max-width: 500px;
             margin: 0 auto;
+            padding-bottom: 20px;
         }
         .full-btn {
-            grid-column: span 2; /* زر عريض يملأ الصفر العلوي مثل زر All Products */
+            grid-column: span 2; 
         }
         .product-btn {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            background-color: #5c7cfa; color: white; border: none; padding: 12px;
+            display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+            background-color: #5c7cfa; color: white; border: none; padding: 10px;
             border-radius: 12px; font-size: 13px; font-weight: bold;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
         .product-btn:active { transform: scale(0.95); }
         .product-btn img {
-            width: 22px; height: 22px; border-radius: 5px; background: white; padding: 2px; object-fit: contain;
+            width: 22px; height: 22px; border-radius: 5px; background: white; padding: 2px; object-fit: contain; flex-shrink: 0;
         }
+        .btn-text { margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -40,13 +42,13 @@
     <h2>🛍️ Choose a Category:</h2>
 
     <div class="grid-container">
-        <!-- زر جميع المنتجات العريض في الأعلى -->
+        <!-- زر جميع المنتجات -->
         <button class="product-btn full-btn" onclick="buyProduct('cat_All')">
             <img src="https://img.icons8.com/color/512/shopping-bag.png" alt="All"> 
-            All Available Products (80)
+            <span class="btn-text">All Available Products (80)</span>
         </button>
 
-        <!-- باقي الأقسام بنظام زرين في كل صف مطابقة للصورة -->
+        <!-- الذكاء الاصطناعي والتصميم -->
         <button class="product-btn" onclick="buyProduct('cat_Google AI & Gemini')"><img src="gemini_logo.png" alt="Gemini"> Gemini AI Pro</button>
         <button class="product-btn" onclick="buyProduct('cat_Canva')"><img src="Canva_logo_PNG12.png" alt="Canva"> Canva Pro</button>
         
@@ -60,16 +62,56 @@
         <button class="product-btn" onclick="buyProduct('cat_Figma Pro')"><img src="Figma-Logo-PNG_001.png" alt="Figma"> Figma Pro</button>
         
         <button class="product-btn" onclick="buyProduct('cat_Miro Pro')"><img src="miro_logo.png" alt="Miro"> Miro Pro</button>
+        <button class="product-btn" onclick="buyProduct('cat_Framer AI')"><img src="framer_logo.png" alt="Framer"> Framer AI</button>
+
+        <!-- برامج الإنتاجية والتعليم -->
         <button class="product-btn" onclick="buyProduct('cat_JetBrains Pro')"><img src="jetbrains_logo" alt="JetBrains"> JetBrains Pro</button>
-        
         <button class="product-btn" onclick="buyProduct('cat_Notion')"><img src="Notion-Logo.png" alt="Notion"> Notion</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Microsoft')"><img src="microsoft_PNG4.png" alt="Microsoft"> Microsoft 365</button>
+        <button class="product-btn" onclick="buyProduct('cat_Windows Key')"><img src="Windows_logo_PNG5.png" alt="Windows"> Windows Key</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Autodesk')"><img src="Autodesk_logo_PNG2.png" alt="Autodesk"> Autodesk</button>
+        <button class="product-btn" onclick="buyProduct('cat_Duolingo Super')"><img src="Duolingo_logo_PNG1.png" alt="Duolingo"> Duolingo Super</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Coursera Premium')"><img src="Coursera_Logo_PNG4.png" alt="Coursera"> Coursera Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_edX Premium')"><img src="edX-Logo.png" alt="edX"> edX Premium</button>
+        
+        <!-- الترفيه والمشاهدة -->
+        <button class="product-btn" onclick="buyProduct('cat_YouTube Premium')"><img src="Youtube_logo_PNG3.png" alt="YouTube"> YouTube Premium</button>
+        <button class="product-btn" onclick="buyProduct('cat_Prime Video')"><img src="Amazon_Prime_Video_Logo_PNG3.png" alt="Prime Video"> Prime Video</button>
+        
         <button class="product-btn" onclick="buyProduct('cat_Apple TV')"><img src="Apple-Music-Logo-PNG_003.png" alt="Apple TV"> Apple TV</button>
+        <button class="product-btn" onclick="buyProduct('cat_Shahid VIP')"><img src="Shahid App-01.png" alt="Shahid"> Shahid VIP</button>
         
-        <button class="product-btn" onclick="buyProduct('cat_Prime Video')"><img src="Amazon_Prime_Video_Logo_PNG3.png" alt="Prime"> Prime Video</button>
-        <button class="product-btn" onclick="buyProduct('cat_Microsoft')"><img src="microsoft_PNG4.png" alt="Microsoft"> Microsoft</button>
+        <button class="product-btn" onclick="buyProduct('cat_Crunchyroll Premium')"><img src="Crunchyroll_logo_PNG9.png" alt="Crunchyroll"> Crunchyroll</button>
+        <button class="product-btn" onclick="buyProduct('cat_Spotify Premium')"><img src="spotify_logo_PNG5.png" alt="Spotify"> Spotify Premium</button>
         
-        <button class="product-btn" onclick="buyProduct('cat_Instagram')"><img src="InstagramPNG.png" alt="Insta"> Facebook</button>
-        <button class="product-btn" onclick="buyProduct('cat_Email Accounts')"><img src="Outlook_Logo_PNG6.png" alt="Outlook"> Outlook & Hotmail</button>
+        <!-- الحسابات والتواصل -->
+        <button class="product-btn" onclick="buyProduct('cat_Email Accounts')"><img src="Outlook_Logo_PNG6.png" alt="Outlook"> Outlook</button>
+        <button class="product-btn" onclick="buyProduct('cat_Gmail')"><img src="Gmail-Logo-PNG1.png" alt="Gmail"> Gmail</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Instagram')"><img src="InstagramPNG.png" alt="Instagram"> Facebook & Insta</button>
+        <button class="product-btn" onclick="buyProduct('cat_LinkedIn')"><img src="Linkedin_logo_PNG3.png" alt="LinkedIn"> LinkedIn</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Telegram')"><img src="Telegram_logo_PNG2.png" alt="Telegram"> Telegram</button>
+        <button class="product-btn" onclick="buyProduct('cat_Steam')"><img src="Steam_logo_PNG2.png" alt="Steam"> Steam</button>
+
+        <!-- شبكات الحماية VPN -->
+        <button class="product-btn" onclick="buyProduct('cat_ExpressVPN')"><img src="ExpressVPN-logo.png" alt="ExpressVPN"> ExpressVPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_NordVPN')"><img src="NordVPN-Logo-PNG3.png" alt="NordVPN"> NordVPN</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_Surfshark VPN')"><img src="Surfshark Logo - Vertical Colored - 833x512 - z... " alt="Surfshark"> Surfshark VPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_Proton VPN')"><img src="proton-vpn.png" alt="Proton VPN"> Proton VPN</button>
+        
+        <button class="product-btn" onclick="buyProduct('cat_HMA VPN')"><img src="hma-vpn-logo.png" alt="HMA VPN"> HMA VPN</button>
+        <button class="product-btn" onclick="buyProduct('cat_Avira Prime')"><img src="avira_logo.png" alt="Avira"> Avira Prime</button>
+        
+        <button class="product-btn full-btn" onclick="buyProduct('cat_Scribd Premium')">
+            <img src="scribd_logo.png" alt="Scribd"> 
+            <span class="btn-text">Scribd Premium</span>
+        </button>
+
     </div>
 
     <script>
