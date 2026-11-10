@@ -182,7 +182,7 @@ function renderCategories() {
 /* شاشة منتجات القسم */
 function showProducts(cat) {
   currentCat = cat;
-  inOrder = false;
+  closeOrder();
   const found = CATS.find(c => c.cat === cat);
   elTitle.textContent = cat === 'All' ? '📦 كل المنتجات' : '📦 ' + (found ? found.title : cat);
   elGrid.hidden = true;
@@ -213,22 +213,30 @@ function showProducts(cat) {
         ${p.in_stock ? '🛒 اطلب الآن' : 'غير متوفر'}
       </button>`;
     if (p.in_stock) {
-      card.querySelector('.buy').addEventListener('click', () => showOrder(p));
+      card.querySelector('.buy').addEventListener('click', () => showOrder(p, card));
     }
     elList.appendChild(card);
   });
   showBack();
 }
 
-/* شاشة تفاصيل الطلب داخل المتجر */
-function showOrder(p) {
-  inOrder = true;
-  elTitle.textContent = '🎯 تفاصيل الطلب';
-  elList.innerHTML = '';
-  elList.appendChild(backButton('↩ رجوع للمنتجات', () => showProducts(currentCat)));
+/* تفاصيل الطلب تظهر أسفل المنتج مباشرة داخل نفس القائمة */
+let openOrder = null;   // العنصر المفتوح حالياً (إن وُجد)
+
+function closeOrder() {
+  if (openOrder) { openOrder.remove(); openOrder = null; }
+  inOrder = false;
+}
+
+function showOrder(p, card) {
+  // إن كان هناك طلب مفتوح نغلقه أولاً، وإن كان هو نفسه نكتفي بإغلاقه
+  const wasSame = openOrder && openOrder.dataset.pid === String(p.id);
+  closeOrder();
+  if (wasSame) { showBack(); return; }
 
   const box = document.createElement('div');
   box.className = 'order';
+  box.dataset.pid = String(p.id);
   box.innerHTML = `
     <h3>${p.emoji || '📦'} ${escapeHtml(p.name)}</h3>
     <div>💵 <b>السعر الإجمالي:</b> <code>$${p.price}</code></div>
@@ -242,14 +250,23 @@ function showOrder(p) {
   box.querySelector('.send').addEventListener('click', () => {
     tg.openTelegramLink(`https://t.me/${BOT}`);
   });
-  elList.appendChild(box);
-  window.scrollTo(0, 0);
+
+  // ضع الصندوق بعد الصف الذي فيه المنتج (بعد البطاقة الثانية في الصف إن وُجدت)
+  const cards = Array.from(elList.querySelectorAll('.card'));
+  const idx = cards.indexOf(card);
+  const rowEnd = (idx % 2 === 0 && cards[idx + 1]) ? cards[idx + 1] : card;
+  rowEnd.after(box);
+
+  openOrder = box;
+  inOrder = true;
+  elTitle.textContent = '🎯 تفاصيل الطلب';
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   showBack();
 }
 
 try {
   tg.BackButton.onClick(() => {
-    if (inOrder) showProducts(currentCat);
+    if (openOrder) { closeOrder(); elTitle.textContent = '📦 ' + ((CATS.find(c => c.cat === currentCat) || {}).title || 'كل المنتجات'); }
     else if (currentCat) renderCategories();
   });
 } catch (e) {}
@@ -265,7 +282,7 @@ async function load() {
     ALL = [];
     elTitle.textContent = '⚠️ تعذّر تحميل المنتجات';
   }
-  if (currentCat && !inOrder) showProducts(currentCat);
+  if (currentCat && !openOrder) showProducts(currentCat);
   else if (!currentCat) renderCategories();
 }
 
