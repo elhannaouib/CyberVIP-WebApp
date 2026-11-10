@@ -177,7 +177,8 @@ function showProducts(cat) {
       </button>`;
     if (p.in_stock) {
       card.querySelector('.buy').addEventListener('click', () => {
-        tg.openTelegramLink(`https://t.me/${BOT}?start=buy_${p.id}`);
+           tg.openTelegramLink(`https://t.me/${BOT}?start=buy_${p.id}`);
+   setTimeout(() => tg.close(), 400);
       });
     }
     elList.appendChild(card);
