@@ -66,7 +66,7 @@
   }
   .card-sub .cs-name { font-size: 13px; font-weight: 700; }
   .card-sub .cs-price { color: #2f9e44; font-weight: 800; font-size: 14px; }
-  .card-sub .buy-now { justify-content: center; background: #2f9e44; width: 100%; }
+  .card .buy-now { justify-content: center; background: #2f9e44; width: 100%; }
   .card-order { text-align: right; font-size: 12px; line-height: 1.7; margin-top: 4px; }
   .card-order .co-title { font-size: 13px; }
   .card-order .co-note { margin: 6px 0; }
@@ -202,8 +202,10 @@ let paymentBox = null;   // صندوق تفاصيل الدفع في أسفل ا�
 function closeCard() {
   if (openCard) {
     openCard.classList.remove('open');
-    const sub = openCard.querySelector('.card-sub');
-    if (sub) sub.remove();
+    const btn = openCard.querySelector('.buy-now');
+    if (btn) btn.remove();
+    const hint = openCard.querySelector('.hint');
+    if (hint) hint.style.display = '';
     openCard = null;
   }
 }
@@ -258,17 +260,19 @@ function toggleCard(p, card) {
   closeCard();
   closePayment();
 
-  const sub = document.createElement('div');
-  sub.className = 'card-sub';
-  sub.innerHTML = `
-    <div class="cs-name">${p.emoji || '📦'} ${escapeHtml(p.name)}</div>
-    <div class="cs-price">$${p.price}</div>
-    <button class="btn buy-now full"><span class="t">🛒 اطلب الآن</span></button>`;
-  sub.addEventListener('click', e => e.stopPropagation());
-  sub.querySelector('.buy-now').addEventListener('click', () => showPayment(p));
+  const hint = card.querySelector('.hint');
+  if (hint) hint.style.display = 'none';
+
+  const btn = document.createElement('button');
+  btn.className = 'btn buy-now full';
+  btn.innerHTML = '<span class="t">🛒 اطلب الآن</span>';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    showPayment(p);
+  });
+  card.appendChild(btn);
 
   card.classList.add('open');
-  card.appendChild(sub);
   openCard = card;
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   showBack();
