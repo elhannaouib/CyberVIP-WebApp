@@ -291,11 +291,15 @@ function showPayment(p) {
     <div><b>🏦 طرق الدفع المتاحة:</b></div>
     ${PAY_HTML}
     <div>📸 بعد إتمام الدفع، أرسل صورة الوصل في المحادثة مع البوت لاستلام طلبك.</div>
-    <button class="btn send full" style="margin-top:10px">
+    <a class="btn send full" href="https://t.me/${BOT}" target="_blank" rel="noopener" style="margin-top:10px;text-decoration:none">
       <span class="t">💬 فتح المحادثة وإرسال الوصل</span>
-    </button>`;
-  paymentBox.querySelector('.send').addEventListener('click', () => {
-    tg.openTelegramLink(`https://t.me/${BOT}`);
+    </a>`;
+  const sendBtn = paymentBox.querySelector('.send');
+  const chatLink = `https://t.me/${BOT}`;
+  sendBtn.addEventListener('click', e => {
+    e.preventDefault();
+    try { tg.openTelegramLink(chatLink); }
+    catch (err) { window.open(chatLink, '_blank'); }
   });
   elList.appendChild(paymentBox);
   inOrder = true;
