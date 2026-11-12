@@ -59,6 +59,12 @@
   .order .pay { background: #f1f3f5; border-radius: 10px; padding: 10px; margin: 8px 0; }
   .order code { direction: ltr; display: inline-block; word-break: break-all; font-size: 12px; }
   .order .send { background: #2f9e44; }
+  .copy {
+    background: #5c7cfa; color: #fff; border: 0; border-radius: 8px;
+    padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+    margin-inline-start: 6px; vertical-align: middle;
+  }
+  .copy.done { background: #2f9e44; }
   .card.open { opacity: 1; }
   .card .hint { font-size: 11px; color: #5c7cfa; font-weight: 700; }
   .card-sub {
@@ -97,19 +103,19 @@ const PAY_HTML = `
   <div class="pay">
     🏛 <b>1️⃣ التحويل عبر Attijari Wafabank:</b><br>
     🔹 النوع: <code>حساب شخصي</code><br>
-    🔹 RIB: <code>007330000463500031156848</code><br>
-    🔹 SWIFT: <code>BCMAMAMC</code>
+    🔹 RIB: <code>007330000463500031156848</code> <button type="button" class="copy" data-copy="007330000463500031156848">نسخ</button><br>
+    🔹 SWIFT: <code>BCMAMAMC</code> <button type="button" class="copy" data-copy="BCMAMAMC">نسخ</button>
   </div>
   <div class="pay">
     🏛 <b>2️⃣ التحويل عبر CIH Bank:</b><br>
     🔹 النوع: <code>حساب تجاري</code><br>
-    🔹 RIB: <code>230330654524922100580038</code><br>
-    🔹 SWIFT: <code>CIHMMAMC</code>
+    🔹 RIB: <code>230330654524922100580038</code> <button type="button" class="copy" data-copy="230330654524922100580038">نسخ</button><br>
+    🔹 SWIFT: <code>CIHMMAMC</code> <button type="button" class="copy" data-copy="CIHMMAMC">نسخ</button>
   </div>
   <div class="pay">
     🟡 <b>3️⃣ بايننس (Binance USDT / Pay):</b><br>
-    🔹 شبكة USDT (TRC20): <code>TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i</code><br>
-    🔹 Binance Pay ID / UID: <code>307299882</code>
+    🔹 شبكة USDT (TRC20): <code>TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i</code> <button type="button" class="copy" data-copy="TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i">نسخ</button><br>
+    🔹 Binance Pay ID / UID: <code>307299882</code> <button type="button" class="copy" data-copy="307299882">نسخ</button>
   </div>`;
 
 const CATS = [
@@ -171,6 +177,33 @@ function backButton(label, onClick) {
   b.innerHTML = '<span class="t">' + label + '</span>';
   b.addEventListener('click', onClick);
   return b;
+}
+
+function copyText(text, btn) {
+  const done = () => {
+    const old = btn.textContent;
+    btn.textContent = '✓ تم النسخ';
+    btn.classList.add('done');
+    try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    setTimeout(() => { btn.textContent = old; btn.classList.remove('done'); }, 1500);
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    if (ok) done(); else alert(text);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else {
+    fallback();
+  }
 }
 
 function showBack() { try { tg.BackButton.show(); } catch (e) {} }
@@ -291,15 +324,18 @@ function showPayment(p) {
     <div><b>🏦 طرق الدفع المتاحة:</b></div>
     ${PAY_HTML}
     <div>📸 بعد إتمام الدفع، أرسل صورة الوصل في المحادثة مع البوت لاستلام طلبك.</div>
-    <a class="btn send full" href="https://t.me/${BOT}" target="_blank" rel="noopener" style="margin-top:10px;text-decoration:none">
+    <button type="button" class="btn send full" style="margin-top:10px">
       <span class="t">💬 فتح المحادثة وإرسال الوصل</span>
-    </a>`;
-  const sendBtn = paymentBox.querySelector('.send');
-  const chatLink = `https://t.me/${BOT}`;
-  sendBtn.addEventListener('click', e => {
-    e.preventDefault();
+    </button>`;
+  const chatLink = `https://t.me/${BOT}?start=buy_${p.id}`;
+  paymentBox.querySelector('.send').addEventListener('click', () => {
     try { tg.openTelegramLink(chatLink); }
     catch (err) { window.open(chatLink, '_blank'); }
+    // نغلق المتجر ليظهر للعميل الشات تحته
+    setTimeout(() => { try { tg.close(); } catch (e) {} }, 400);
+  });
+  paymentBox.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => copyText(btn.dataset.copy, btn));
   });
   elList.appendChild(paymentBox);
   inOrder = true;
