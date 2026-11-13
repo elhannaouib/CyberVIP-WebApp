@@ -65,6 +65,13 @@
     margin-inline-start: 6px; vertical-align: middle;
   }
   .copy.done { background: #2f9e44; }
+  .group-title {
+    font-size: 14px; font-weight: 800; text-align: right; color: #343a40;
+    margin: 12px 4px 0; padding-bottom: 4px; border-bottom: 2px solid rgba(92,124,250,.45);
+  }
+  .mad { font-size: 11px; font-weight: 700; color: #495057; }
+  .terms { background: #fff9db; border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 12px; line-height: 1.7; }
+  .terms ul { margin: 6px 0 0; padding-inline-start: 18px; }
   .card.open { opacity: 1; }
   .card .hint { font-size: 11px; color: #5c7cfa; font-weight: 700; }
   .card-sub {
@@ -98,25 +105,58 @@ try { tg.setHeaderColor('#e0c3fc'); } catch (e) {}
 const API_URL = 'https://cybervipstorebot-production.up.railway.app/api/products';
 const BOT = 'CyberVIPStore_bot';
 
+/* الإعدادات تأتي من البوت (سعر الدرهم، Cash Plus، الشروط). هذه قيم احتياطية فقط */
+let SETTINGS = { mad_rate: 10, cashplus: null, terms: [] };
+
+function cbtn(v) {
+  return `<button type="button" class="copy" data-copy="${escapeHtml(v)}">نسخ</button>`;
+}
+
+function madOf(p) { return Math.round(p.price * (SETTINGS.mad_rate || 10)); }
+function priceHtml(p) { return `$${p.price} <span class="mad">≈ ${madOf(p)} د.م</span>`; }
+
 /* طرق الدفع: مطابقة لما في bot.py */
-const PAY_HTML = `
+function payHtml() {
+  let n = 3;
+  let html = `
   <div class="pay">
     🏛 <b>1️⃣ التحويل عبر Attijari Wafabank:</b><br>
     🔹 النوع: <code>حساب شخصي</code><br>
-    🔹 RIB: <code>007330000463500031156848</code> <button type="button" class="copy" data-copy="007330000463500031156848">نسخ</button><br>
-    🔹 SWIFT: <code>BCMAMAMC</code> <button type="button" class="copy" data-copy="BCMAMAMC">نسخ</button>
+    🔹 RIB: <code>007330000463500031156848</code> ${cbtn('007330000463500031156848')}<br>
+    🔹 SWIFT: <code>BCMAMAMC</code> ${cbtn('BCMAMAMC')}
   </div>
   <div class="pay">
     🏛 <b>2️⃣ التحويل عبر CIH Bank:</b><br>
     🔹 النوع: <code>حساب تجاري</code><br>
-    🔹 RIB: <code>230330654524922100580038</code> <button type="button" class="copy" data-copy="230330654524922100580038">نسخ</button><br>
-    🔹 SWIFT: <code>CIHMMAMC</code> <button type="button" class="copy" data-copy="CIHMMAMC">نسخ</button>
-  </div>
-  <div class="pay">
-    🟡 <b>3️⃣ بايننس (Binance USDT / Pay):</b><br>
-    🔹 شبكة USDT (TRC20): <code>TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i</code> <button type="button" class="copy" data-copy="TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i">نسخ</button><br>
-    🔹 Binance Pay ID / UID: <code>307299882</code> <button type="button" class="copy" data-copy="307299882">نسخ</button>
+    🔹 RIB: <code>230330654524922100580038</code> ${cbtn('230330654524922100580038')}<br>
+    🔹 SWIFT: <code>CIHMMAMC</code> ${cbtn('CIHMMAMC')}
   </div>`;
+  const cp = SETTINGS.cashplus;
+  if (cp && cp.name && cp.phone) {
+    html += `
+  <div class="pay">
+    💸 <b>${n}\uFE0F\u20E3 Cash Plus:</b><br>
+    🔹 الاسم: <code>${escapeHtml(cp.name)}</code> ${cbtn(cp.name)}<br>
+    🔹 رقم الهاتف: <code>${escapeHtml(cp.phone)}</code> ${cbtn(cp.phone)}
+  </div>`;
+    n++;
+  }
+  html += `
+  <div class="pay">
+    🟡 <b>${n}\uFE0F\u20E3 بايننس (Binance USDT / Pay):</b><br>
+    🔹 شبكة USDT (TRC20): <code>TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i</code> ${cbtn('TQuU9a544LT8fm1VrTzrBJNTfDNPF9bQ4i')}<br>
+    🔹 Binance Pay ID / UID: <code>307299882</code> ${cbtn('307299882')}
+  </div>`;
+  return html;
+}
+
+function termsHtml() {
+  const t = SETTINGS.terms || [];
+  if (!t.length) return '';
+  return `<div class="terms"><b>📜 شروط الشراء والضمان</b><ul>${
+    t.map(x => `<li>${escapeHtml(x)}</li>`).join('')
+  }</ul></div>`;
+}
 
 const CATS = [
   { cat: 'All',                 title: 'كل المنتجات المتاحة', img: 'https://img.icons8.com/color/512/shopping-bag.png', full: true },
@@ -156,7 +196,18 @@ const CATS = [
   { cat: 'Proton VPN',          title: 'Proton VPN',           img: 'proton-vpn.png' },
   { cat: 'HMA VPN',             title: 'HMA VPN',              img: 'hma-vpn-logo.png' },
   { cat: 'Avira Prime',         title: 'Avira Prime',          img: 'avira_logo.png' },
-  { cat: 'Scribd Premium',      title: 'Scribd Premium',       img: 'scribd_logo.png', full: true },
+  { cat: 'Apple',               title: 'Apple Music',          img: 'Apple-Music-Logo-PNG_003.png' },
+  { cat: 'Scribd Premium',      title: 'Scribd Premium',       img: 'scribd_logo.png' },
+];
+
+/* المجموعات: لكل مجموعة اسمها وفيها الأقسام بالترتيب الذي تريده */
+const GROUPS = [
+  { title: '🤖 الذكاء الاصطناعي',     cats: ['Google AI & Gemini', 'ChatGPT & Codex', 'Claude API', 'Muse AI'] },
+  { title: '🎨 التصميم والإنتاجية',    cats: ['Canva', 'CapCut', 'Adobe', 'Figma Pro', 'Framer AI', 'Miro Pro', 'Notion', 'Microsoft', 'Windows Key', 'Autodesk', 'JetBrains Pro'] },
+  { title: '🎓 التعليم والتعلّم',       cats: ['Duolingo Super', 'Coursera Premium', 'edX Premium', 'Scribd Premium'] },
+  { title: '🎬 المشاهدة والاشتراكات',   cats: ['Shahid VIP', 'Prime Video', 'Apple TV', 'YouTube Premium', 'Crunchyroll Premium', 'Spotify Premium', 'Apple'] },
+  { title: '🛡️ الـ VPN والحماية',      cats: ['ExpressVPN', 'NordVPN', 'Surfshark VPN', 'Proton VPN', 'HMA VPN', 'Avira Prime'] },
+  { title: '👤 الحسابات',              cats: ['Gmail', 'Email Accounts', 'Instagram', 'LinkedIn', 'Telegram', 'Steam'] },
 ];
 
 const elGrid  = document.getElementById('grid');
@@ -210,6 +261,16 @@ function showBack() { try { tg.BackButton.show(); } catch (e) {} }
 function hideBack() { try { tg.BackButton.hide(); } catch (e) {} }
 
 /* شاشة الأقسام */
+function catButton(c, full) {
+  const b = document.createElement('button');
+  b.className = 'btn' + (full ? ' full' : '');
+  b.innerHTML =
+    `<img src="${c.img}" alt="" onerror="this.style.display='none'">` +
+    `<span class="t">${c.title}</span>`;
+  b.addEventListener('click', () => showProducts(c.cat));
+  return b;
+}
+
 function renderCategories() {
   currentCat = null;
   inOrder = false;
@@ -217,14 +278,15 @@ function renderCategories() {
   elGrid.hidden = false;
   elList.hidden = true;
   elGrid.innerHTML = '';
-  CATS.forEach(c => {
-    const b = document.createElement('button');
-    b.className = 'btn' + (c.full ? ' full' : '');
-    b.innerHTML =
-      `<img src="${c.img}" alt="" onerror="this.style.display='none'">` +
-      `<span class="t">${c.title}</span>`;
-    b.addEventListener('click', () => showProducts(c.cat));
-    elGrid.appendChild(b);
+
+  elGrid.appendChild(catButton(CATS.find(c => c.cat === 'All'), true));
+  GROUPS.forEach(g => {
+    const h = document.createElement('div');
+    h.className = 'group-title full';
+    h.textContent = g.title;
+    elGrid.appendChild(h);
+    const list = g.cats.map(k => CATS.find(c => c.cat === k)).filter(Boolean);
+    list.forEach((c, i) => elGrid.appendChild(catButton(c, list.length % 2 === 1 && i === list.length - 1)));
   });
   hideBack();
 }
@@ -266,25 +328,44 @@ function showProducts(cat) {
     return;
   }
 
-  const items = ALL.filter(p => cat === 'All' || p.category === cat);
-  if (items.length === 0) {
+  const matches = ALL.filter(p => cat === 'All' || p.category === cat);
+  if (matches.length === 0) {
     elList.insertAdjacentHTML('beforeend', '<div class="msg full">❌ لا توجد منتجات في هذا القسم حاليًا.</div>');
     showBack();
     return;
   }
 
-  items.forEach(p => {
+  // المتوفر أولاً، ثم الأرخص فالأغلى
+  const byOrder = (a, b) => (Number(!!b.in_stock) - Number(!!a.in_stock)) || (a.price - b.price);
+
+  const addCard = p => {
     const card = document.createElement('div');
     card.className = 'card' + (p.in_stock ? '' : ' out');
     card.innerHTML = `
       <div class="name">${p.emoji || '📦'} ${escapeHtml(p.name)}</div>
-      <div class="price">${p.in_stock ? '$' + p.price : 'نفد'}</div>
+      <div class="price">${p.in_stock ? priceHtml(p) : 'نفد'}</div>
       <div class="hint">${p.in_stock ? '👆 اضغط للطلب' : 'غير متوفر'}</div>`;
     if (p.in_stock) {
       card.addEventListener('click', () => toggleCard(p, card));
     }
     elList.appendChild(card);
-  });
+  };
+  const addTitle = t => elList.insertAdjacentHTML('beforeend', `<div class="group-title full">${t}</div>`);
+
+  if (cat === 'All') {
+    const used = new Set();
+    GROUPS.forEach(g => {
+      const items = matches.filter(p => g.cats.includes(p.category)).sort(byOrder);
+      if (!items.length) return;
+      items.forEach(p => used.add(p));
+      addTitle(g.title);
+      items.forEach(addCard);
+    });
+    const rest = matches.filter(p => !used.has(p)).sort(byOrder);
+    if (rest.length) { addTitle('📦 منتجات أخرى'); rest.forEach(addCard); }
+  } else {
+    matches.sort(byOrder).forEach(addCard);
+  }
   showBack();
 }
 
@@ -319,10 +400,11 @@ function showPayment(p) {
   paymentBox.className = 'order';
   paymentBox.innerHTML = `
     <h3>${p.emoji || '📦'} ${escapeHtml(p.name)}</h3>
-    <div>💵 <b>السعر الإجمالي:</b> <code>$${p.price}</code></div>
+    <div>💵 <b>السعر الإجمالي:</b> <b>${priceHtml(p)}</b></div>
     <hr>
     <div><b>🏦 طرق الدفع المتاحة:</b></div>
-    ${PAY_HTML}
+    ${payHtml()}
+    ${termsHtml()}
     <div>📸 بعد إتمام الدفع، أرسل صورة الوصل في المحادثة مع البوت لاستلام طلبك.</div>
     <button type="button" class="btn send full" style="margin-top:10px">
       <span class="t">💬 فتح المحادثة وإرسال الوصل</span>
@@ -365,6 +447,7 @@ async function load() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     ALL = Array.isArray(json.products) ? json.products : [];
+    if (json.settings) SETTINGS = Object.assign({}, SETTINGS, json.settings);
   } catch (e) {
     ALL = [];
     elTitle.textContent = '⚠️ تعذّر تحميل المنتجات';
